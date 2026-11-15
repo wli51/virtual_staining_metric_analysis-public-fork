@@ -195,6 +195,10 @@ channel_to_models = {
     chan: [None] * len(model_catalogue)
     for chan in target_channels
 }
+channel_to_checkpoint_paths = {
+    chan: [None] * len(model_catalogue)
+    for chan in target_channels
+}
 channel_to_checkpoint_hashes = {
     chan: [None] * len(model_catalogue)
     for chan in target_channels
@@ -236,6 +240,7 @@ for run in tqdm(validated_runs, total=len(validated_runs), desc="Loading models"
     model_instance.eval()
 
     channel_to_models[channel][i] = model_instance
+    channel_to_checkpoint_paths[channel][i] = str(run["best_weight"])
     channel_to_checkpoint_hashes[channel][i] = run["checkpoint_sha256"]
     channel_to_model_classes[channel][i] = f"{model_class.__module__}.{model_class.__qualname__}"
     channel_to_model_init_configs[channel][i] = model_init_config
@@ -265,6 +270,7 @@ for chan in target_channels:
 
     model_list = channel_to_models[chan]
     catalogue_for_output = model_catalogue.copy()
+    catalogue_for_output["checkpoint_path"] = channel_to_checkpoint_paths[chan]
     catalogue_for_output["checkpoint_sha256"] = channel_to_checkpoint_hashes[chan]
     catalogue_for_output["model_class"] = channel_to_model_classes[chan]
     catalogue_for_output["model_init_config"] = channel_to_model_init_configs[chan]
